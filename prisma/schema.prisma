@@ -21,6 +21,18 @@ model User {
   role      Role     @default(SURVEYOR)
   image     String?
   createdAt DateTime @default(now())
+  kyc       KYC?
+}
+
+model KYC {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  aadharName  String
+  aadharNumber String
+  phoneNumber String
+  address     String
+  createdAt   DateTime @default(now())
 }
 
 enum Role {

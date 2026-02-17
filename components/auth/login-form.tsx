@@ -31,11 +31,21 @@ export function LoginForm() {
       if (!res.ok) {
         alert(data.error)
       } else {
-        // Role based redirect
+        // Store user ID in sessionStorage for all users
+        sessionStorage.setItem("userId", data.user.id)
+        
+        // Role based redirect with KYC check for SURVEYOR
         if (data.role === "ADMIN") {
           window.location.href = "/admin"
         } else if (data.role === "MANAGER") {
           window.location.href = "/manager"
+        } else if (data.role === "SURVEYOR") {
+          // Check if KYC is completed
+          if (data.hasKYC === false) {
+            window.location.href = "/kyc"
+          } else {
+            window.location.href = "/surveyor"
+          }
         } else {
           window.location.href = "/surveyor"
         }
