@@ -24,7 +24,7 @@ export async function POST(req: Request) {
 
     const { email, password } = validationResult.data;
 
-    // Find user by email
+    // Find user by email (include KYC for SURVEYOR users)
     const user = await prisma.user.findUnique({
       where: { email },
       select: {
@@ -33,6 +33,12 @@ export async function POST(req: Request) {
         email: true,
         password: true,
         role: true,
+        kyc: {
+          select: {
+            id: true,
+            createdAt: true,
+          },
+        },
       },
     });
 
@@ -65,6 +71,9 @@ export async function POST(req: Request) {
 
     console.log(`User logged in successfully: ${user.email} (${user.role})`);
     
+    // Check KYC status for SURVEYOR users
+    const hasKYC = user.role === "SURVEYOR" ? !!user.kyc : null;
+    
     // Return user data (excluding password)
     return NextResponse.json(
       {
@@ -76,6 +85,7 @@ export async function POST(req: Request) {
           role: user.role,
         },
         role: user.role,
+        hasKYC: hasKYC, // null for non-SURVEYOR, true/false for SURVEYOR
       },
       { status: 200 }
     );
